@@ -45,11 +45,15 @@ func KaryawanHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		var Karyawan model.Karyawan
-		var KaryawanList []*model.Karyawan
+		var KaryawanList []model.Karyawan
 
 		for curEm.Next(context.TODO()) {
-			curEm.Decode(&Karyawan)
-			KaryawanList = append(KaryawanList, &Karyawan)
+			err := curEm.Decode(&Karyawan)
+			if err != nil {
+				http.Error(w, "Error decoding book data", http.StatusInternalServerError)
+				return
+			}
+			KaryawanList = append(KaryawanList, Karyawan)
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -57,10 +61,10 @@ func KaryawanHandler(w http.ResponseWriter, r *http.Request) {
 		return
 
 	case "POST":
-		var data Karyawan
+		var data model.Karyawan
 		err := json.NewDecoder(r.Body).Decode(&data)
 		if err != nil {
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			http.Error(w, "Invalid request body", http.StatusBadRequest)
 			return
 		}
 		db, err := db.DBConnection()
@@ -68,16 +72,11 @@ func KaryawanHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
+		defer db.MongoDB.Client().Disconnect(context.TODO())
 
 		daftarKaryawan := db.MongoDB.Collection("Karyawan")
 
-		_, err = daftarKaryawan.InsertOne(context.TODO(), model.Karyawan{
-			Nama:         data.Nama,
-			NIK:          uint64(data.NIK),
-			Pendidikan:   data.Pendidikan,
-			TanggalMasuk: data.TanggalMasuk,
-			StatusKerja:  data.StatusKerja,
-		})
+		_, err = daftarKaryawan.InsertOne(context.TODO(), data)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)

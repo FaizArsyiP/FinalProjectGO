@@ -86,8 +86,7 @@ func BookHandler(w http.ResponseWriter, r *http.Request) {
 		return
 
 	case "POST":
-
-		var data Buku
+		var data model.Buku
 		err := json.NewDecoder(r.Body).Decode(&data)
 		if err != nil {
 			http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -104,12 +103,11 @@ func BookHandler(w http.ResponseWriter, r *http.Request) {
 		daftarBuku := db.MongoDB.Collection("BookList")
 
 		_, err = daftarBuku.InsertOne(context.TODO(), data)
+
 		if err != nil {
 			http.Error(w, "Failed to add book", http.StatusInternalServerError)
 			return
 		}
-		// No need to append to daftarBuku as it is a MongoDB collection
-
 		w.WriteHeader(http.StatusCreated)
 		w.Write([]byte("Buku berhasil ditambahkan"))
 		return
@@ -145,7 +143,7 @@ func BookHandler(w http.ResponseWriter, r *http.Request) {
 
 		_, err = daftarBuku.UpdateOne(context.TODO(), bson.M{"_id": objID}, bson.M{
 			"$set": bson.M{
-				"Stock": updateData.Stok,
+				"Stok":  updateData.Stok,
 				"Harga": updateData.Harga,
 			},
 		})
