@@ -25,8 +25,8 @@ func main() {
 	r.HandleFunc("/api/karyawan", handler.KaryawanHandler)
 
 	// Jalankan server di port 8080
-	fmt.Println("Server is running on port 3500")
-	err := http.ListenAndServe(":3500", r)
+	fmt.Println("Server is running on port 8080")
+	err := http.ListenAndServe(":8080", r)
 	if err != nil {
 		fmt.Println("Error starting server:", err)
 	}
