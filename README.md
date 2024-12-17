@@ -1,5 +1,5 @@
 ﻿# FinalProjectGO
-## dibuat dengan bantuan AI 
+###### Dibuat dengan menggunakan bantuan AI 
 
 ### Penggunaan
 
